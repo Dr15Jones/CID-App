@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "7F918BB61C721C1F0064E744"
-               BuildableName = "CID App.app"
-               BlueprintName = "CID App"
+               BuildableName = "CID Damage Marker.app"
+               BlueprintName = "CID Damage Marker"
                ReferencedContainer = "container:CIDApp.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -33,8 +33,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7F918BB61C721C1F0064E744"
-            BuildableName = "CID App.app"
-            BlueprintName = "CID App"
+            BuildableName = "CID Damage Marker.app"
+            BlueprintName = "CID Damage Marker"
             ReferencedContainer = "container:CIDApp.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -56,8 +56,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7F918BB61C721C1F0064E744"
-            BuildableName = "CID App.app"
-            BlueprintName = "CID App"
+            BuildableName = "CID Damage Marker.app"
+            BlueprintName = "CID Damage Marker"
             ReferencedContainer = "container:CIDApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -75,8 +75,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7F918BB61C721C1F0064E744"
-            BuildableName = "CID App.app"
-            BlueprintName = "CID App"
+            BuildableName = "CID Damage Marker.app"
+            BlueprintName = "CID Damage Marker"
             ReferencedContainer = "container:CIDApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
