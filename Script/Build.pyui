@@ -1,0 +1,180 @@
+[
+  {
+    "selected" : false,
+    "frame" : "{{0, 0}, {1024, 768}}",
+    "class" : "View",
+    "nodes" : [
+      {
+        "selected" : false,
+        "frame" : "{{6, 34}, {273, 728}}",
+        "class" : "View",
+        "nodes" : [
+          {
+            "selected" : true,
+            "frame" : "{{0, 0}, {279, 659}}",
+            "class" : "TableView",
+            "nodes" : [
+
+            ],
+            "attributes" : {
+              "flex" : "WH",
+              "data_source_items" : "Row 1\nRow 2\nRow 3",
+              "background_color" : "RGBA(1.0, 1.0, 1.0, 1.0)",
+              "frame" : "{{40, 284}, {200, 200}}",
+              "class" : "TableView",
+              "uuid" : "F1A0C2AE-6AE5-4161-9DE1-4356BDC9852B",
+              "data_source_number_of_lines" : 1,
+              "data_source_delete_enabled" : true,
+              "data_source_font_size" : 18,
+              "name" : "Model Types",
+              "row_height" : 44
+            }
+          },
+          {
+            "selected" : false,
+            "frame" : "{{212, 667}, {55, 55}}",
+            "class" : "Button",
+            "nodes" : [
+
+            ],
+            "attributes" : {
+              "flex" : "LT",
+              "action" : "add_type",
+              "font_size" : 15,
+              "frame" : "{{100, 368}, {80, 32}}",
+              "title" : "Button",
+              "uuid" : "4DA3FCCE-DB6E-4128-9B33-7FB689DA05BF",
+              "class" : "Button",
+              "name" : "Add Type",
+              "image_name" : "iob:ios7_plus_empty_256"
+            }
+          }
+        ],
+        "attributes" : {
+          "border_width" : 1,
+          "flex" : "WHR",
+          "frame" : "{{462, 334}, {100, 100}}",
+          "uuid" : "C4D23A66-8256-4765-937E-AA0ACB96CB9D",
+          "corner_radius" : 0,
+          "class" : "View",
+          "name" : "left"
+        }
+      },
+      {
+        "selected" : true,
+        "frame" : "{{287, 0}, {737, 768}}",
+        "class" : "View",
+        "nodes" : [
+          {
+            "selected" : false,
+            "frame" : "{{6, 31}, {75, 32}}",
+            "class" : "Label",
+            "nodes" : [
+
+            ],
+            "attributes" : {
+              "flex" : "RB",
+              "font_size" : 18,
+              "frame" : "{{294, 368}, {150, 32}}",
+              "uuid" : "72B374EA-767B-46F7-81EE-EAF964F8C3E9",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "Name",
+              "name" : "NameLabel",
+              "font_name" : "<System>"
+            }
+          },
+          {
+            "selected" : false,
+            "frame" : "{{89, 31}, {592, 32}}",
+            "class" : "TextField",
+            "nodes" : [
+
+            ],
+            "attributes" : {
+              "flex" : "WB",
+              "font_size" : 17,
+              "frame" : "{{269, 368}, {200, 32}}",
+              "spellchecking_type" : "default",
+              "class" : "TextField",
+              "uuid" : "9AED66D2-902E-4CB8-88ED-A654CF02CB03",
+              "alignment" : "left",
+              "autocorrection_type" : "default",
+              "name" : "name",
+              "font_name" : "<System>"
+            }
+          },
+          {
+            "selected" : false,
+            "frame" : "{{0, 144}, {737, 624}}",
+            "class" : "View",
+            "nodes" : [
+
+            ],
+            "attributes" : {
+              "flex" : "WH",
+              "frame" : "{{319, 334}, {100, 100}}",
+              "class" : "View",
+              "name" : "Hit Builder",
+              "uuid" : "9F984979-6477-4E03-A1F0-8580C0C79473"
+            }
+          },
+          {
+            "selected" : true,
+            "frame" : "{{6, 111}, {361, 32}}",
+            "class" : "Label",
+            "nodes" : [
+
+            ],
+            "attributes" : {
+              "font_name" : "<System>",
+              "frame" : "{{294, 368}, {150, 32}}",
+              "uuid" : "7B0BC302-7C41-4DE8-BCB5-91124AC34B72",
+              "class" : "Label",
+              "alignment" : "left",
+              "text" : "Select Hit Circles to Hide Them During Play",
+              "font_size" : 18,
+              "name" : "label1"
+            }
+          }
+        ],
+        "attributes" : {
+          "flex" : "WHL",
+          "frame" : "{{462, 334}, {100, 100}}",
+          "class" : "View",
+          "name" : "main",
+          "uuid" : "FF4BC805-D242-4935-B626-C8E53DD3B5B7"
+        }
+      },
+      {
+        "selected" : false,
+        "frame" : "{{6, 0}, {273, 32}}",
+        "class" : "Label",
+        "nodes" : [
+
+        ],
+        "attributes" : {
+          "flex" : "WRB",
+          "border_width" : 1,
+          "font_name" : "<System>",
+          "frame" : "{{437, 368}, {150, 32}}",
+          "uuid" : "819D0A7A-7703-4C40-B0AD-2437428E31C0",
+          "class" : "Label",
+          "alignment" : "left",
+          "text" : "   Model Types",
+          "corner_radius" : 0,
+          "name" : "label1",
+          "font_size" : 18
+        }
+      }
+    ],
+    "attributes" : {
+      "flex" : "",
+      "enabled" : true,
+      "tint_color" : "RGBA(0.000000,0.478000,1.000000,1.000000)",
+      "name" : "Build",
+      "border_color" : "RGBA(0.000000,0.000000,0.000000,1.000000)",
+      "background_color" : "RGBA(1.000000,1.000000,1.000000,1.000000)"
+    }
+  }
+]
