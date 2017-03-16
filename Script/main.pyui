@@ -1,0 +1,99 @@
+[
+  {
+    "selected" : false,
+    "frame" : "{{0, 0}, {768, 1024}}",
+    "class" : "View",
+    "nodes" : [
+      {
+        "selected" : false,
+        "frame" : "{{0, 0}, {768, 970}}",
+        "class" : "View",
+        "nodes" : [
+
+        ],
+        "attributes" : {
+          "uuid" : "5F7D9563-5B57-4D0D-A923-B9B30601AC51",
+          "frame" : "{{462, 334}, {100, 100}}",
+          "class" : "View",
+          "name" : "Main",
+          "flex" : "WH"
+        }
+      },
+      {
+        "selected" : true,
+        "frame" : "{{0, 978}, {768, 46}}",
+        "class" : "View",
+        "nodes" : [
+          {
+            "selected" : true,
+            "frame" : "{{260.5, -2}, {208, 48}}",
+            "class" : "View",
+            "nodes" : [
+              {
+                "selected" : false,
+                "frame" : "{{0, 0}, {80, 48}}",
+                "class" : "Button",
+                "nodes" : [
+
+                ],
+                "attributes" : {
+                  "flex" : "RT",
+                  "action" : "build_pressed",
+                  "frame" : "{{119, 8}, {80, 32}}",
+                  "title" : "Build",
+                  "uuid" : "4AC29371-0EA2-452D-82EA-284393E121F1",
+                  "class" : "Button",
+                  "font_bold" : false,
+                  "name" : "Build",
+                  "font_size" : 15
+                }
+              },
+              {
+                "selected" : false,
+                "frame" : "{{128, 0}, {80, 48}}",
+                "class" : "Button",
+                "nodes" : [
+
+                ],
+                "attributes" : {
+                  "flex" : "LT",
+                  "action" : "play_pressed",
+                  "frame" : "{{119, 8}, {80, 32}}",
+                  "title" : "Play",
+                  "uuid" : "4AC29371-0EA2-452D-82EA-284393E121F1",
+                  "class" : "Button",
+                  "name" : "Play",
+                  "font_size" : 15
+                }
+              }
+            ],
+            "attributes" : {
+              "uuid" : "5AD6386E-64C8-4454-ACD4-02D9D220B64E",
+              "frame" : "{{462, -26}, {100, 100}}",
+              "class" : "View",
+              "name" : "mode buttons",
+              "flex" : "LRT"
+            }
+          }
+        ],
+        "attributes" : {
+          "flex" : "WT",
+          "border_width" : 1,
+          "frame" : "{{462, 334}, {100, 100}}",
+          "class" : "View",
+          "corner_radius" : 0,
+          "uuid" : "11C16E38-3044-419D-97E4-D2FDEE6E3848",
+          "name" : "bottom"
+        }
+      }
+    ],
+    "attributes" : {
+      "flex" : "",
+      "enabled" : true,
+      "background_color" : "RGBA(1.000000,1.000000,1.000000,1.000000)",
+      "name" : "CID",
+      "tint_color" : "RGBA(0.000000,0.478000,1.000000,1.000000)",
+      "border_color" : "RGBA(0.000000,0.000000,0.000000,1.000000)"
+    }
+  }
+]
