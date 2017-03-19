@@ -1,5 +1,6 @@
 import ui
 import json
+import dialogs
 
 #############################
 # Data Model
@@ -412,23 +413,15 @@ class ModelEditorController(object):
 		return self.__nameView.text
 
 	def choose_type(self, sender):
-		v = ui.TableView()
-		v.allows_selection=True
-		v.set_editing=False
-		ls = ui.ListDataSource(gDataSource.type_names())
-		v.data_source= ls
-		v.delegate = ls
-		cd = ChoiceDelegate(v)
-		ls.action = cd.delegate
-		#v.size_to_fit()
-		v.present('sheet')
-		v.wait_modal()
-		if cd._choice != -1:
-			t =gDataSource.type(cd._choice)
-			sender.title = t.name
-			gDataSource.model(self.__index).type = t
-			self.__hitController.switch_model(self.__index)
-#setup_model_hit()
+		names = gDataSource.type_names()
+		n = dialogs.list_dialog('Type',names)
+		if not n :
+			return
+		index = names.index(n)
+		t =gDataSource.type(index)
+		sender.title = t.name
+		gDataSource.model(self.__index).type = t
+		self.__hitController.switch_model(self.__index)
 
 
 
