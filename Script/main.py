@@ -13,6 +13,7 @@ class HitBoxQualities(object):
 class ModelType (object):
 	beast = 'beast'
 	jack = 'jack'
+	other = 'other'
 	def __init__(self, name,category=beast,specialBoxes=None):
 		self._name = name
 		self._category = category
