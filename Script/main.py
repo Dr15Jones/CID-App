@@ -38,7 +38,7 @@ class ModelTypeProxy(object):
 		self.__type._specialBoxes[(column,index)] =HitBoxQualities(active,label)
 		self.__cm.store_changes()
 	def remove_box(self,column, index):
-		if (column,index) in self._specialBoxes:
+		if (column,index) in self.__type._specialBoxes:
 			del self.__type._specialBoxes[(column,index)]
 			self.__cm.store_changes()
 
@@ -77,7 +77,7 @@ class ModelProxy(object):
 		self.__cm.store_changes()
 	def remove_hit(self,column,index):
 		if (column,index) in self.__model._hitBoxes:
-			del self.__model.hitBoxes[column,index]
+			del self.__model._hitBoxes[column,index]
 			self.__cm.store_changes()
 
 class DataSource(object):
@@ -144,7 +144,6 @@ class DataSource(object):
 
 	def store_changes(self):
 		f = open(self._fileName,"w")
-		#version number
 		jd = {}
 		types =[]
 		for t in self._types:
@@ -183,216 +182,322 @@ class DataSource(object):
 
 gDataSource = DataSource()
 
+#############################
+# UI Controllers
+#############################
+
+class ListViewController(object):
+	def __init__(self, listView, adderButton, itemViewController, delegate):
+		self.__listView = listView
+		self.__listView.data_source.edit_action = self.list_editted_action
+		self.__listView.data_source.action = self.item_selected_action
+		self.__itemViewController = itemViewController
+		self.__itemViewController.name_change_callback = self.__selected_item_name_changed
+		self.__delegate = delegate
+		self.__lastSelectedRow = -1
+		adderButton.action = self.add_new_item
+		self.__update_list_ui()
+
+	def add_new_item(self,sender):
+		self.__delegate.add_new_item()
+		self.__update_list_ui()
+
+	def item_selected_action(self,sender):
+		previousChoice = self.__itemViewController.name()
+		#see if user was editting item name just
+		# before changing the selected item
+		newSelection = sender.selected_row
+		if self.__lastSelectedRow != -1:
+			oldName = self.__delegate.item_name(self.__lastSelectedRow)
+			if oldName !=previousChoice:
+				self.__delegate.set_item_name(self.__lastSelectedRow,previousChoice)
+				self.__listView.data_source.items[self.__lastSelectedRow] = previousChoice
+				self.__listView.reload()
+		self.__lastSelectedRow = newSelection
+		if -1 == newSelection:
+			self.__itemViewController.disable()
+		else:
+			self.__itemViewController.edit_item(newSelection)
+
+	def list_editted_action(self,sender):
+		if self.__delegate.new_items_list(sender.items):
+			#the selected item was probably deleted
+			self.__itemViewController.disable()
+		self.__lastSelectedRow = -1
+		pass
+
+	def __update_list_ui(self):
+		self.__listView.data_source.items = self.__delegate.item_names()
+		self.__listView.reload()
+
+	def __selected_item_name_changed(self,newName):
+		index = self.__listView.data_source.selected_row
+		if -1 != index:
+			self.__delegate.set_item_name(index,newName)
+		self.__update_list_ui()
 
 #############################
 # Build Interface
 #############################
 
+class TypesDelegate(object):
+	def __init__(self):
+		pass
+	def add_new_item(self):
+		gDataSource.add_type(ModelType("New"))
+	def item_name(self,index):
+		return gDataSource.type(index).name
+	def set_item_name(self,index,name):
+		gDataSource.type(index).name = name
+	def new_items_list(self, itemNames):
+		return gDataSource.types_to_keep(itemNames)
+	def item_names(self):
+		return gDataSource.type_names()
+
+
+class TypeEditorController(object):
+	def __init__(self,editView):
+		self.__editView = editView
+		self.__nameView = editView['name']
+		self.__nameView.action = self.__change_name_action
+		self.disable()
+		self.__hitController = BeastTypeHitController(editView['Hit Builder'])
+	def edit_item(self,index):
+		recursive_disabled(self.__editView,False)
+		self.__nameView.text = gDataSource.type(index).name
+		self.__hitController.switch_type(index)
+		pass
+	@property
+	def name_change_callback(self):
+		return self.__name_change_callback
+	@name_change_callback.setter
+	def name_change_callback(self,action):
+		self.__name_change_callback = action
+	def disable(self):
+		recursive_disabled(self.__editView,True)
+		pass
+	def __change_name_action(self,sender):
+		self.__name_change_callback(sender.text)
+	def name(self):
+		return self.__nameView.text
+
+
 def recursive_disabled(view,disable):
 	view.hidden = disable
 
-def type_edit_action(sender):
-	global gDataSource
-	global runningView
-	global list_last_selected_row
-	if gDataSource.types_to_keep(sender.items):
-		#the selected item was probably deleted
-		recursive_disabled(runningView['main'],True)
-	list_last_selected_row = -1
-
-def update_type_list_ui():
-	global listView
-	listView.data_source.items = gDataSource.type_names()
-	listView.reload()
-
-list_last_selected_row = -1
-
-def type_chosen(sender):
-	global runningView
-	global list_last_selected_row
-	nameView = runningView['main']['name']
-	previousChoice = nameView.text
-	newSelection = sender.selected_row
-	if list_last_selected_row != -1:
-		t =gDataSource.type(list_last_selected_row)
-		if t.name !=previousChoice:
-			t.name = previousChoice
-			listView.data_source.items[list_last_selected_row] = previousChoice
-			listView.reload()
-	list_last_selected_row = newSelection
-	if -1 == newSelection:
-		recursive_disabled(runningView['main'],True)
-	else:
-		recursive_disabled(runningView['main'],False)
-		nameView.text = gDataSource.type(newSelection).name
-		setup_build_hit()
-				
-	#runningView['main'].set_needs_display()
-
-def change_type_name(sender):
-	global listView
-	index = listView.data_source.selected_row
-	if -1 != index:
-		gDataSource.type(index).name = sender.text
-	update_type_list_ui()
-
-		
 
 hitImage = ui.Image.named('iow:ios7_circle_filled_256')
 notHitImage = ui.Image.named('iow:ios7_circle_outline_256')
 
-def build_set_hit_enabled(hit):
-	hit.alpha =1.
-	hit.image = notHitImage
-	hit.hit = False
+class BeastTypeHitController(object):
+	def __init__(self, hitsView):
+		#hit_pressed is looked for by the load_view
+		global hit_pressed
+		hit_pressed = self.hit_action
+		hitView = ui.load_view("Beast Damage Marker")
+		hitView.flex = 'WH'
+		self.__hitsView = hitsView
+		hitView.height = hitsView.height
+		hitView.width = hitsView.width
+		hitsView.add_subview(hitView)
+		hitsView.size_to_fit()
+		self.__selectedType = -1
+		self.__hitImage= ui.Image.named('iow:ios7_circle_filled_256')
+		self.__notHitImage= ui.Image.named('iow:ios7_circle_outline_256')
 
-def build_set_hit_disabled(hit):
-	hit.alpha =0.2
-	hit.image = hitImage
-	hit.hit = True
-	
-def setup_build_hit():
-		index = listView.data_source.selected_row
-		hitsView = runningView['main']['Hit Builder']
-		if index != -1:
-			t = gDataSource.type(index)
-			for s in hitsView.subviews[0].subviews:
-				if hasattr(s,"column"):
-					if t.has_box(s.column,s.position):
-						build_set_hit_disabled(s)
-					else:
-						build_set_hit_enabled(s)
+	def __enable_hit(self,hit):
+		hit.alpha =1.
+		hit.image = self.__notHitImage
+		hit.hit = False
+	def __disable_hit(self,hit):
+		hit.alpha =0.2
+		hit.image = self.__hitImage
+		hit.hit = True
+
+	def switch_type(self,index):
+			self.__selectedType = index
+			if index != -1:
+				t = gDataSource.type(index)
+				for s in self.__hitsView.subviews[0].subviews:
+					if hasattr(s,"column"):
+						if t.has_box(s.column,s.position):
+							self.__disable_hit(s)
+						else:
+							self.__enable_hit(s)
+			else:
+				for s in self.__hitsView.subviews[0].subviews:
+					if hasattr(s,"column"):
+						self.__enable_hit(s)
+			self.__hitsView.set_needs_display()
+
+	def hit_action(self,sender):
+		if self.__selectedType == -1:
+			return
+		if sender.hit:
+			self.__enable_hit(sender)
+			gDataSource.type(self.__selectedType).remove_box(sender.column,sender.position)
 		else:
-			for s in hitsView.subviews[0].subviews:
-				if hasattr(s,"column"):
-					build_set_hit_enabled()
-		hitsView.set_needs_display()
-			
-def build_hit_pressed(sender):
-	global gDataSource
-	index = listView.data_source.selected_row	
-	if index == -1:
-		return
-	if sender.hit:
-		build_set_hit_enabled(sender)
-		gDataSource.type(index).remove_box(sender.column,sender.position)
-	else:
-		build_set_hit_disabled(sender)
-		gDataSource.type(index).add_box(sender.column,sender.position)
-
-def add_type(sender):
-	global gDataSource
-	gDataSource.add_type(ModelType("New"))
-	update_type_list_ui()
-	#note I can not get the new row selected
+			self.__disable_hit(sender)
+			gDataSource.type(self.__selectedType).add_box(sender.column,sender.position)
 
 
 #############################
 # Play Interface
 #############################
+class ModelsDelegate(object):
+	def __init__(self):
+		pass
+	def add_new_item(self):
+		t = gDataSource.type(0)
+		gDataSource.add_model(Model(t,t.name+" "+str(len(gDataSource.model_names()))))
+	def item_name(self,index):
+		return gDataSource.model(index).name
+	def set_item_name(self,index,name):
+		gDataSource.model(index).name = name
+	def new_items_list(self, itemNames):
+		return gDataSource.models_to_keep(itemNames)
+	def item_names(self):
+		return gDataSource.model_names()
 
-def model_edit_action(sender):
-	global gDataSource
-	global runningView
-	global list_last_selected_row
-	if gDataSource.models_to_keep(sender.items):
-		#the selected item was probably deleted
-		recursive_disabled(runningView['main'],True)
-	list_last_selected_row = -1
 
-def update_model_list_ui():
-	global listView
-	listView.data_source.items = gDataSource.model_names()
-	listView.reload()
+class ChoiceDelegate (object):
+	def __init__(self,view):
+		self._choice = -1
+		self._view = view
+	def delegate(self,sender):
+		self._choice= sender.selected_row
+		self._view.close()
 
-def model_chosen(sender):
-	global runningView
-	global list_last_selected_row
-	nameView = runningView['main']['name']
-	previousChoice = nameView.text
-	newSelection = sender.selected_row
-	if list_last_selected_row != -1:
-		#might have selected a new row without first hitting return in the name text field
-		if listView.data_source.items[list_last_selected_row] != previousChoice:
-			listView.data_source.items[list_last_selected_row] = previousChoice
-			gDataSource.model(list_last_selected_row).name=previousChoice
-			listView.reload()
-	list_last_selected_row = newSelection
-	if -1 == newSelection:
-		recursive_disabled(runningView['main'],True)
-	else:
-		recursive_disabled(runningView['main'],False)
-		m =gDataSource.model(newSelection)
-		nameView.text = m.name
-		runningView['main']['type chooser'].title = m.type.name
-		setup_model_hit()		
+class ModelEditorController(object):
+	def __init__(self,editView):
+		self.__editView = editView
+		self.__nameView = editView['name']
+		self.__nameView.action = self.__change_name_action
+		global add_model
+		self.__hitController = BeastModelHitController(editView['Hit Filler'])
+		self.__typeChooserView = editView['type chooser']
+		self.__typeChooserView.action = self.choose_type
+		self.disable()
+		self.__index = -1
+	def edit_item(self,index):
+		self.__index = index
+		recursive_disabled(self.__editView,False)
+		m =gDataSource.model(index)
+		self.__nameView.text = m.name
+		#setup hits
+		self.__typeChooserView.title = m.type.name
+		self.__hitController.switch_model(index)
+	#		setup_model_hit()
+	@property
+	def name_change_callback(self):
+		return self.__name_change_callback
+	@name_change_callback.setter
+	def name_change_callback(self,action):
+		self.__name_change_callback = action
+	def disable(self):
+		recursive_disabled(self.__editView,True)
+		pass
+	def __change_name_action(self,sender):
+		if -1 != self.__index:
+			#name must be unique
+			name = sender.text
+			model =gDataSource.model(self.__index)
+			if name == model.name:
+				return
+			name = make_unique_model_name(name)
+			if name != sender.text:
+				sender.text = name
+			self.__name_change_callback(sender.text)
+	def name(self):
+		return self.__nameView.text
+
+	def choose_type(self, sender):
+		v = ui.TableView()
+		v.allows_selection=True
+		v.set_editing=False
+		ls = ui.ListDataSource(gDataSource.type_names())
+		v.data_source= ls
+		v.delegate = ls
+		cd = ChoiceDelegate(v)
+		ls.action = cd.delegate
+		#v.size_to_fit()
+		v.present('sheet')
+		v.wait_modal()
+		if cd._choice != -1:
+			t =gDataSource.type(cd._choice)
+			sender.title = t.name
+			gDataSource.model(self.__index).type = t
+			self.__hitController.switch_model(self.__index)
+#setup_model_hit()
+
+
+
+
+class BeastModelHitController(object):
+	def __init__(self, hitsView):
+		#hit_pressed is looked for by the load_view
+		global hit_pressed
+		hit_pressed = self.hit_action
+		hitView = ui.load_view("Beast Damage Marker")
+		hitView.flex = 'WH'
+		self.__hitsView = hitsView
+		hitView.height = hitsView.height
+		hitView.width = hitsView.width
+		hitsView.add_subview(hitView)
+		hitsView.size_to_fit()
+		self.__selectedModel = -1
+		self.__hitImage= ui.Image.named('iow:ios7_circle_filled_256')
+		self.__notHitImage= ui.Image.named('iow:ios7_circle_outline_256')
+	
+	def __enable_hit(self,hit):
+		hit.hidden =False
+		hit.alpha = 1.
+		hit.image = notHitImage
+		hit.hit = False
+	def __disable_hit(self,hit):
+		hit.hidden = True
+		hit.alpha = 1.
+		hit.image = notHitImage
+		hit.hit = False
+	def set_hit(self,hit):
+		hit.image = hitImage
+		hit.hit = True
+	def set_unhit(self,hit):
+		hit.image = notHitImage
+		hit.hit = False
+
+
+	def switch_model(self,index):
+		self.__selectedModel = index
+		model = gDataSource.model(index)
+		mType = model.type
+		for s in self.__hitsView.subviews[0].subviews:
+			if hasattr(s,"column"):
+				if mType.has_box(s.column,s.position):
+					self.__disable_hit(s)
+				else:
+					self.__enable_hit(s)
+					if model.was_hit(s.column,s.position):
+						self.set_hit(s)
+					else:
+						self.set_unhit(s)
+		self.__hitsView.set_needs_display()
+
+	def hit_action(self,sender):
+		if self.__selectedModel == -1:
+			return
+		if sender.hit:
+			self.set_unhit(sender)
+			gDataSource.model(self.__selectedModel).remove_hit(sender.column,sender.position)
+		else:
+			self.set_hit(sender)
+			gDataSource.model(self.__selectedModel).add_hit(sender.column,sender.position)
 
 def make_unique_model_name(name):
 	while name in gDataSource.model_names():
 		name += ' 1'
 	return name
 
-def change_model_name(sender):
-	global listView
-	index = listView.data_source.selected_row
-	if -1 != index:
-		#name must be unique
-		name = sender.text
-		model =gDataSource.model(index)
-		if name == model.name:
-			return
-		name = make_unique_model_name(name)
-		model.name = name
-		if name != sender.text:
-			sender.text = name
-	update_model_list_ui()
-
-def play_set_hit_enabled(hit):
-	hit.hidden =False
-	hit.alpha = 1.
-	hit.image = notHitImage
-	hit.hit = False
-
-def play_set_hit_disabled(hit):
-	hit.hidden = True
-	hit.alpha = 1.
-	hit.image = notHitImage
-	hit.hit = False
-
-def play_set_hit(hit):
-	hit.image = hitImage
-	hit.hit = True
-
-def play_set_unhit(hit):	
-	hit.image = notHitImage
-	hit.hit = False
-
-def setup_model_hit():
-	index = listView.data_source.selected_row
-	model = gDataSource.model(index)
-	mType = model.type
-	hitsView = runningView['main']['Hit Filler']
-	for s in hitsView.subviews[0].subviews:
-		if hasattr(s,"column"):
-			if mType.has_box(s.column,s.position):
-				play_set_hit_disabled(s)
-			else:
-				play_set_hit_enabled(s)
-			if model.was_hit(s.column,s.position):
-				play_set_hit(s)
-			else:
-				play_set_unhit(s)
-						
-def play_hit_pressed(sender):
-	index = listView.data_source.selected_row
-	if sender.hit:
-		sender.hit = False
-		sender.image = notHitImage
-		gDataSource.model(index).remove_hit(sender.column,sender.position)
-	else:
-		sender.hit = True
-		sender.image = hitImage
-		gDataSource.model(index).add_hit(sender.column,sender.position)
 
 hit_pressed = None
 
@@ -401,13 +506,14 @@ playButton = None
 modeView = None
 mainView = None
 runningView = None
-listView = None
 notselected = '#808080'
+
+gTypesController = None
+
+add_model = None
+
 def build_pressed(sender):
 	global runningView
-	global listView
-	global list_last_selected_row
-	list_last_selected_row = -1
 	if runningView:
 		mainView.remove_subview(runningView)
 	runningView = ui.load_view('Build')
@@ -415,31 +521,19 @@ def build_pressed(sender):
 	mainView.add_subview(runningView)
 	runningView.height=mainView.height
 	runningView.width=mainView.width
-	runningView['main']['name'].action = change_type_name
-	recursive_disabled(runningView['main'], True)
-	listView = runningView['left']['Model Types']
-	update_type_list_ui()
-	listView.data_source.edit_action = type_edit_action
-	listView.data_source.action = type_chosen
+
 	sender.tint_color = None
 	playButton.tint_color =notselected
 	
-	#hit_pressed has to be set before loading the view
-	hit_pressed = build_hit_pressed	
-	hitView = ui.load_view("Beast Damage Marker")
-	hitView.flex = 'WH'
-	buildView = runningView['main']['Hit Builder']
-	hitView.height = buildView.height
-	hitView.width = buildView.width
-	buildView.add_subview(hitView)
-	buildView.size_to_fit()
+	gTypesController = ListViewController(runningView['left']['Model Types'],
+																				runningView['left']['Add Type'],
+																				TypeEditorController(runningView['main']),
+																				TypesDelegate())
 
-		
+
+gModelsController = None
 def play_pressed(sender):
 	global runningView
-	global listView
-	global list_last_selected_row
-	list_last_selected_row = -1
 	if runningView:
 		mainView.remove_subview(runningView)
 	runningView = ui.load_view('Play')
@@ -447,57 +541,15 @@ def play_pressed(sender):
 	mainView.add_subview(runningView)
 	runningView.height=mainView.height
 	runningView.width=mainView.width
-	runningView['main']['name'].action = change_model_name
-	recursive_disabled(runningView['main'],True)
-	listView = runningView['left']['Models']
-	update_model_list_ui()
-	listView.data_source.edit_action = model_edit_action
-	listView.data_source.action = model_chosen
-	
+
 	sender.tint_color = None
 	buildButton.tint_color = notselected
 
-	#hit_pressed has to be set before loading the view
-	hit_pressed = play_hit_pressed	
-	hitView = ui.load_view("Beast Damage Marker")
-	hitView.flex = 'WH'
-	hitView.height = mainView.height
-	hitView.width  = mainView.width
-	runningView['main']['Hit Filler'].add_subview(hitView)
-
-def add_model(sender):
-	global gDataSource
-	t = gDataSource.type(0)
-	gDataSource.add_model(Model(t,t.name+" "+str(len(gDataSource.model_names()))))
-	update_model_list_ui()
-	pass
-	
-class ChoiceDelegate (object):
-	def __init__(self,view):
-		self._choice = -1
-		self._view = view
-	def delegate(self,sender):
-		self._choice= sender.selected_row
-		self._view.close()
-		
-
-def choose_type(sender):
-	v = ui.TableView()
-	v.allows_selection=True
-	v.set_editing=False
-	ls = ui.ListDataSource(gDataSource.type_names())
-	v.data_source= ls
-	v.delegate = ls
-	cd = ChoiceDelegate(v)
-	ls.action = cd.delegate
-	#v.size_to_fit()
-	v.present('sheet')
-	v.wait_modal()
-	if cd._choice != -1:
-		t =gDataSource.type(cd._choice)
-		sender.title = t.name
-		gDataSource.model(listView.data_source.selected_row).type = t
-		setup_model_hit()
+	gModelsController = ListViewController(runningView['left']['Models'],
+																				 runningView['left']['Add Type'],
+																				 ModelEditorController(runningView['main']),
+																				 ModelsDelegate()
+																				 )
 
 gDataSource.retrieve_changes()
 v = ui.load_view()
