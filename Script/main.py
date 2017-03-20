@@ -438,18 +438,18 @@ class BeastModelHitController(object):
 	def __enable_hit(self,hit):
 		hit.hidden =False
 		hit.alpha = 1.
-		hit.image = notHitImage
+		hit.image = self.__notHitImage
 		hit.hit = False
 	def __disable_hit(self,hit):
 		hit.hidden = True
 		hit.alpha = 1.
-		hit.image = notHitImage
+		hit.image = self.__notHitImage
 		hit.hit = False
 	def set_hit(self,hit):
-		hit.image = hitImage
+		hit.image = self.__hitImage
 		hit.hit = True
 	def set_unhit(self,hit):
-		hit.image = notHitImage
+		hit.image = self.__notHitImage
 		hit.hit = False
 
 
