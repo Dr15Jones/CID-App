@@ -362,14 +362,6 @@ class ModelsDelegate(object):
 		return gDataSource.model_names()
 
 
-class ChoiceDelegate (object):
-	def __init__(self,view):
-		self._choice = -1
-		self._view = view
-	def delegate(self,sender):
-		self._choice= sender.selected_row
-		self._view.close()
-
 class ModelEditorController(object):
 	def __init__(self,editView):
 		self.__editView = editView
