@@ -21,9 +21,9 @@
               "data_source_items" : "Row 1\nRow 2\nRow 3",
               "background_color" : "RGBA(1.0, 1.0, 1.0, 1.0)",
               "frame" : "{{40, 284}, {200, 200}}",
-              "class" : "TableView",
               "uuid" : "F1A0C2AE-6AE5-4161-9DE1-4356BDC9852B",
               "data_source_number_of_lines" : 1,
+              "class" : "TableView",
               "data_source_delete_enabled" : true,
               "data_source_font_size" : 18,
               "name" : "Model Types",
@@ -40,13 +40,13 @@
             "attributes" : {
               "flex" : "LT",
               "action" : "add_type",
-              "font_size" : 15,
+              "image_name" : "iob:ios7_plus_empty_256",
               "frame" : "{{100, 368}, {80, 32}}",
               "title" : "Button",
               "uuid" : "4DA3FCCE-DB6E-4128-9B33-7FB689DA05BF",
               "class" : "Button",
               "name" : "Add Type",
-              "image_name" : "iob:ios7_plus_empty_256"
+              "font_size" : 15
             }
           }
         ],
@@ -67,33 +67,33 @@
         "nodes" : [
           {
             "selected" : false,
-            "frame" : "{{6, 31}, {75, 32}}",
+            "frame" : "{{6, 15}, {58, 32}}",
             "class" : "Label",
             "nodes" : [
 
             ],
             "attributes" : {
               "flex" : "RB",
-              "font_size" : 18,
+              "font_name" : "<System>",
               "frame" : "{{294, 368}, {150, 32}}",
               "uuid" : "72B374EA-767B-46F7-81EE-EAF964F8C3E9",
               "class" : "Label",
-              "alignment" : "left",
+              "alignment" : "right",
               "text" : "Name",
               "name" : "NameLabel",
-              "font_name" : "<System>"
+              "font_size" : 18
             }
           },
           {
             "selected" : false,
-            "frame" : "{{89, 31}, {592, 32}}",
+            "frame" : "{{72, 15}, {609, 32}}",
             "class" : "TextField",
             "nodes" : [
 
             ],
             "attributes" : {
               "flex" : "WB",
-              "font_size" : 17,
+              "font_name" : "<System>",
               "frame" : "{{269, 368}, {200, 32}}",
               "spellchecking_type" : "default",
               "class" : "TextField",
@@ -101,7 +101,7 @@
               "alignment" : "left",
               "autocorrection_type" : "default",
               "name" : "name",
-              "font_name" : "<System>"
+              "font_size" : 17
             }
           },
           {
@@ -112,38 +112,77 @@
 
             ],
             "attributes" : {
-              "flex" : "WH",
+              "uuid" : "9F984979-6477-4E03-A1F0-8580C0C79473",
               "frame" : "{{319, 334}, {100, 100}}",
               "class" : "View",
               "name" : "Hit Builder",
-              "uuid" : "9F984979-6477-4E03-A1F0-8580C0C79473"
+              "flex" : "WH"
             }
           },
           {
-            "selected" : true,
+            "selected" : false,
             "frame" : "{{6, 111}, {361, 32}}",
             "class" : "Label",
             "nodes" : [
 
             ],
             "attributes" : {
-              "font_name" : "<System>",
+              "font_size" : 18,
               "frame" : "{{294, 368}, {150, 32}}",
               "uuid" : "7B0BC302-7C41-4DE8-BCB5-91124AC34B72",
               "class" : "Label",
               "alignment" : "left",
-              "text" : "Select Hit Circles to Hide Them During Play",
+              "text" : "Select Hit Boxes to Hide Them During Play",
+              "name" : "label1",
+              "font_name" : "<System>"
+            }
+          },
+          {
+            "selected" : false,
+            "frame" : "{{6, 55}, {58, 32}}",
+            "class" : "Label",
+            "nodes" : [
+
+            ],
+            "attributes" : {
+              "flex" : "RB",
+              "font_name" : "<System>",
+              "frame" : "{{294, 368}, {150, 32}}",
+              "uuid" : "72B374EA-767B-46F7-81EE-EAF964F8C3E9",
+              "class" : "Label",
+              "alignment" : "right",
+              "text" : "Type",
               "font_size" : 18,
-              "name" : "label1"
+              "name" : "NameLabel"
+            }
+          },
+          {
+            "selected" : true,
+            "frame" : "{{72, 55}, {609, 32}}",
+            "class" : "Button",
+            "nodes" : [
+
+            ],
+            "attributes" : {
+              "border_width" : 1,
+              "flex" : "WB",
+              "frame" : "{{329, 368}, {80, 32}}",
+              "title" : "Button",
+              "uuid" : "B55FC199-501E-4486-8BA4-78B49A44D13C",
+              "font_bold" : true,
+              "class" : "Button",
+              "corner_radius" : 5,
+              "name" : "type",
+              "font_size" : 18
             }
           }
         ],
         "attributes" : {
-          "flex" : "WHL",
+          "uuid" : "FF4BC805-D242-4935-B626-C8E53DD3B5B7",
           "frame" : "{{462, 334}, {100, 100}}",
           "class" : "View",
           "name" : "main",
-          "uuid" : "FF4BC805-D242-4935-B626-C8E53DD3B5B7"
+          "flex" : "WHL"
         }
       },
       {
@@ -156,25 +195,25 @@
         "attributes" : {
           "flex" : "WRB",
           "border_width" : 1,
-          "font_name" : "<System>",
+          "name" : "label1",
           "frame" : "{{437, 368}, {150, 32}}",
           "uuid" : "819D0A7A-7703-4C40-B0AD-2437428E31C0",
           "class" : "Label",
           "alignment" : "left",
           "text" : "   Model Types",
           "corner_radius" : 0,
-          "name" : "label1",
-          "font_size" : 18
+          "font_size" : 18,
+          "font_name" : "<System>"
         }
       }
     ],
     "attributes" : {
-      "flex" : "",
+      "background_color" : "RGBA(1.000000,1.000000,1.000000,1.000000)",
       "enabled" : true,
       "tint_color" : "RGBA(0.000000,0.478000,1.000000,1.000000)",
-      "name" : "Build",
       "border_color" : "RGBA(0.000000,0.000000,0.000000,1.000000)",
-      "background_color" : "RGBA(1.000000,1.000000,1.000000,1.000000)"
+      "name" : "Build",
+      "flex" : ""
     }
   }
 ]
