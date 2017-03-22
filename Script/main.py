@@ -14,6 +14,10 @@ class ModelType (object):
 	beast = 'beast'
 	jack = 'jack'
 	other = 'other'
+	@classmethod
+	def categories(cls):
+		#return (cls.beast,cls.jack,cls.other)
+		return (cls.beast,cls.other)
 	def __init__(self, name,category=beast,specialBoxes=None):
 		self._name = name
 		self._category = category
@@ -32,6 +36,13 @@ class ModelTypeProxy(object):
 	@name.setter
 	def name(self,newName):
 		self.__type._name = newName
+		self.__cm.store_changes()
+	@property
+	def category(self):
+		return self.__type._category
+	@category.setter
+	def category(self,newCategory):
+		self.__type._category = newCategory
 		self.__cm.store_changes()
 
 	def has_box(self,column,index):
@@ -262,12 +273,17 @@ class TypeEditorController(object):
 		self.__editView = editView
 		self.__nameView = editView['name']
 		self.__nameView.action = self.__change_name_action
+		self.__hitTypeView = editView['type']
+		self.__hitTypeView.action = self.__change_hit_type_action
 		self.disable()
-		self.__hitController = BeastTypeHitController(editView['Hit Builder'])
+		self.__hitControllerFactories = {BeastTypeHitController.categoryName():BeastTypeHitController,
+			OtherTypeHitController.categoryName(): OtherTypeHitController}
+		self.__hitController = None
 	def edit_item(self,index):
+		self.__index = index
 		recursive_disabled(self.__editView,False)
 		self.__nameView.text = gDataSource.type(index).name
-		self.__hitController.switch_type(index)
+		self.__switch_to_hit_type(gDataSource.type(index).category)
 		pass
 	@property
 	def name_change_callback(self):
@@ -280,6 +296,22 @@ class TypeEditorController(object):
 		pass
 	def __change_name_action(self,sender):
 		self.__name_change_callback(sender.text)
+	def __change_hit_type_action(self,sender):
+		names = ModelType.categories()
+		n = dialogs.list_dialog('Choose Hit Type',names)
+		if not n :
+			return
+		gDataSource.type(self.__index).category = n
+		self.__switch_to_hit_type(n)
+		#self.__hitController.switch_model(self.__index)
+	def __switch_to_hit_type(self,typeName):
+		self.__hitTypeView.title = typeName
+		hb = self.__editView['Hit Builder']
+		if self.__hitController:
+			hb.remove_subview(hb.subviews[0])
+		self.__hitController = self.__hitControllerFactories[typeName](hb)
+		self.__hitController.switch_type(self.__index)
+
 	def name(self):
 		return self.__nameView.text
 
@@ -288,15 +320,24 @@ def recursive_disabled(view,disable):
 	view.hidden = disable
 
 
-hitImage = ui.Image.named('iow:ios7_circle_filled_256')
-notHitImage = ui.Image.named('iow:ios7_circle_outline_256')
+circleHitImage = ui.Image.named('iow:ios7_circle_filled_256')
+circleNotHitImage = ui.Image.named('iow:ios7_circle_outline_256')
 
-class BeastTypeHitController(object):
+squareHitImage = None
+squareNotHitImage = None
+with ui.ImageContext(40,40) as ctx:
+	sqr = ui.Path.rect(0,0,40,40)
+	ui.set_color('black')
+	sqr.line_width = 2
+	sqr.stroke()
+	squareNotHitImage = ctx.get_image()
+	sqrt = ui.Path.rect(4,4,32,32)
+	sqrt.fill()
+	squareHitImage = ctx.get_image()
+
+class SimpleTypeHitController(object):
 	def __init__(self, hitsView):
-		#hit_pressed is looked for by the load_view
-		global hit_pressed
-		hit_pressed = self.hit_action
-		hitView = ui.load_view("Beast Damage Marker")
+		hitView = self.get_hit_view()
 		hitView.flex = 'WH'
 		self.__hitsView = hitsView
 		hitView.height = hitsView.height
@@ -304,16 +345,14 @@ class BeastTypeHitController(object):
 		hitsView.add_subview(hitView)
 		hitsView.size_to_fit()
 		self.__selectedType = -1
-		self.__hitImage= ui.Image.named('iow:ios7_circle_filled_256')
-		self.__notHitImage= ui.Image.named('iow:ios7_circle_outline_256')
-
+	
 	def __enable_hit(self,hit):
 		hit.alpha =1.
-		hit.image = self.__notHitImage
+		hit.image = self.notHitImage
 		hit.hit = False
 	def __disable_hit(self,hit):
 		hit.alpha =0.2
-		hit.image = self.__hitImage
+		hit.image = self.hitImage
 		hit.hit = True
 
 	def switch_type(self,index):
@@ -343,6 +382,72 @@ class BeastTypeHitController(object):
 			gDataSource.type(self.__selectedType).add_box(sender.column,sender.position)
 
 
+class BeastTypeHitController(SimpleTypeHitController):
+	def __init__(self, hitsView):
+		super(BeastTypeHitController,self).__init__(hitsView)
+	def get_hit_view(self):
+		#hit_pressed is looked for by the load_view
+		global hit_pressed
+		hit_pressed = self.hit_action
+		hitView = ui.load_view("Beast Damage Marker")
+		return hitView
+	@property
+	def hitImage(self):
+		return circleHitImage
+	@property
+	def notHitImage(self):
+		return circleNotHitImage
+	@classmethod
+	def categoryName(cls):
+		return ModelType.beast
+
+def create_other_hit_view(action):
+	hitView = ui.View()
+	for c in range(0,5):
+		xoffset = 0
+		position = 0
+		for p in range(0,5):
+			b = ui.Button()
+			b.image = squareNotHitImage
+			b.tint_color = 'red'
+			b.frame=(xoffset,60*c,40,40)
+			b.action = action
+			b.column = c+1
+			b.position = position
+			xoffset += 40+10
+			position +=1
+			hitView.add_subview(b)
+		xoffset += 30
+		for p in range(0,5):
+			b = ui.Button()
+			b.image = squareNotHitImage
+			b.tint_color = 'red'
+			b.frame=(xoffset,60*c,40,40)
+			b.action = action
+			b.column = c+1
+			b.position = position
+			position +=1
+			xoffset += 40+10
+			hitView.add_subview(b)
+	return hitView
+
+class OtherTypeHitController(SimpleTypeHitController):
+	def __init__(self, hitsView):
+		super(OtherTypeHitController,self).__init__(hitsView)
+	def get_hit_view(self):
+		return create_other_hit_view(self.hit_action)
+	@property
+	def hitImage(self):
+		return squareHitImage
+	@property
+	def notHitImage(self):
+		return squareNotHitImage
+	@classmethod
+	def categoryName(cls):
+		return ModelType.other
+
+
+
 #############################
 # Play Interface
 #############################
@@ -368,7 +473,9 @@ class ModelEditorController(object):
 		self.__nameView = editView['name']
 		self.__nameView.action = self.__change_name_action
 		global add_model
-		self.__hitController = BeastModelHitController(editView['Hit Filler'])
+		self.__hitControllerFactories = {BeastModelHitController.categoryName():BeastModelHitController,
+				OtherModelHitController.categoryName():OtherModelHitController}
+		self.__hitController = None #BeastModelHitController(editView['Hit Filler'])
 		self.__typeChooserView = editView['type chooser']
 		self.__typeChooserView.action = self.choose_type
 		self.disable()
@@ -380,7 +487,7 @@ class ModelEditorController(object):
 		self.__nameView.text = m.name
 		#setup hits
 		self.__typeChooserView.title = m.type.name
-		self.__hitController.switch_model(index)
+		self.setup_model_type()
 	#		setup_model_hit()
 	@property
 	def name_change_callback(self):
@@ -414,17 +521,23 @@ class ModelEditorController(object):
 		t =gDataSource.type(index)
 		sender.title = t.name
 		gDataSource.model(self.__index).type = t
+		self.setup_model_type()
+	def setup_model_type(self):
+		hf = self.__editView['Hit Filler']
+		if self.__hitController:
+			hf.remove_subview(hf.subviews[0])
+		t = gDataSource.model(self.__index).type
+		self.__hitController = self.__hitControllerFactories[t.category](hf)
 		self.__hitController.switch_model(self.__index)
 
 
-
-
-class BeastModelHitController(object):
+class SimpleModelHitController(object):
 	def __init__(self, hitsView):
 		#hit_pressed is looked for by the load_view
-		global hit_pressed
-		hit_pressed = self.hit_action
-		hitView = ui.load_view("Beast Damage Marker")
+		hitView = self.get_hit_view()
+		#global hit_pressed
+		#hit_pressed = self.hit_action
+		#hitView = ui.load_view("Beast Damage Marker")
 		hitView.flex = 'WH'
 		self.__hitsView = hitsView
 		hitView.height = hitsView.height
@@ -432,26 +545,25 @@ class BeastModelHitController(object):
 		hitsView.add_subview(hitView)
 		hitsView.size_to_fit()
 		self.__selectedModel = -1
-		self.__hitImage= ui.Image.named('iow:ios7_circle_filled_256')
-		self.__notHitImage= ui.Image.named('iow:ios7_circle_outline_256')
+		#self.__hitImage= ui.Image.named('iow:ios7_circle_filled_256')
+		#self.__notHitImage= ui.Image.named('iow:ios7_circle_outline_256')
 	
 	def __enable_hit(self,hit):
 		hit.hidden =False
 		hit.alpha = 1.
-		hit.image = self.__notHitImage
+		hit.image = self.notHitImage
 		hit.hit = False
 	def __disable_hit(self,hit):
 		hit.hidden = True
 		hit.alpha = 1.
-		hit.image = self.__notHitImage
+		hit.image = self.notHitImage
 		hit.hit = False
 	def set_hit(self,hit):
-		hit.image = self.__hitImage
+		hit.image = self.hitImage
 		hit.hit = True
 	def set_unhit(self,hit):
-		hit.image = self.__notHitImage
+		hit.image = self.notHitImage
 		hit.hit = False
-
 
 	def switch_model(self,index):
 		self.__selectedModel = index
@@ -483,6 +595,40 @@ def make_unique_model_name(name):
 	while name in gDataSource.model_names():
 		name += ' 1'
 	return name
+
+class OtherModelHitController(SimpleModelHitController):
+	def __init__(self, hitsView):
+		super(OtherModelHitController,self).__init__(hitsView)
+	def get_hit_view(self):
+		return create_other_hit_view(self.hit_action)
+	@property
+	def hitImage(self):
+		return squareHitImage
+	@property
+	def notHitImage(self):
+		return squareNotHitImage
+	@classmethod
+	def categoryName(cls):
+		return ModelType.other
+
+class BeastModelHitController(SimpleModelHitController):
+	def __init__(self, hitsView):
+		super(BeastModelHitController,self).__init__(hitsView)
+	def get_hit_view(self):
+		#hit_pressed is looked for by the load_view
+		global hit_pressed
+		hit_pressed = self.hit_action
+		hitView = ui.load_view("Beast Damage Marker")
+		return hitView
+	@property
+	def hitImage(self):
+		return circleHitImage
+	@property
+	def notHitImage(self):
+		return circleNotHitImage
+	@classmethod
+	def categoryName(cls):
+		return ModelType.beast
 
 
 hit_pressed = None
